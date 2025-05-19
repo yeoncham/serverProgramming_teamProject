@@ -44,7 +44,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
           <div class="container-fluid">
             <!-- 로고 텍스트 클릭 시 메인 이동 -->
-            <a class="navbar-brand" href="{{ url_for('index') }}">배고파SSU</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">배고파융</a>
             <div class="d-flex">
               {% if session.get('user_id') %}
                 <a class="btn btn-outline-light me-2" href="{{ url_for('logout') }}">로그아웃</a>
