@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>{{ review.title }}</h2>
+<!-- 작성자, 날짜, 조회수 -->
+<div class="row mb-3 text-start border-top border-bottom py-2">
+  <div class="col-12 col-md-4 border-end ps-3 d-flex align-items-center">
+    <strong class="me-1">작성자:</strong> {{ review.user.username }}
+  </div>
+  <div class="col-12 col-md-4 border-end ps-3 d-flex align-items-center">
+    <strong class="me-1">작성일:</strong> {{ review.created_at.strftime('%Y-%m-%d %H:%M') }}
+  </div>
+  <div class="col-12 col-md-4 ps-3 d-flex align-items-center">
+    <strong class="me-1">조회수:</strong> {{ review.views }}
+  </div>
+</div>
+<!-- ⭐ 별점 표시 -->
+<p>
+  <strong>별점:</strong>
+  {% for i in range(review.rating) %}⭐{% endfor %}
+  ({{ review.rating }}/5)
+</p>
+<!-- 내용 -->
+<p>{{ review.content }}</p>
+{% if review.image %}
+  <img src="{{ url_for('static', filename='uploads/' ~ review.image) }}" class="img-fluid mt-2">
+{% endif %}
+<!-- 수정/삭제 버튼 -->
+{% if session.get('user_id') == review.user_id %}
+  <div class="mt-3 d-flex justify-content-end gap-2">
+    <a href="{{ url_for('edit_review', review_id=review.id) }}" class="btn btn-warning">수정</a>
+    <form method="POST" action="{{ url_for('delete_review', review_id=review.id) }}"
+          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+      <button type="submit" class="btn btn-danger">삭제</button>
+    </form>
+  </div>
+{% endif %}
+<hr>
+<h4 class="mt-5">댓글</h4>
+{% for comment in comments %}
+  <div class="border p-3 mb-3 position-relative">
+    {% if session.get('user_id') == comment.user_id and request.args.get('edit') == comment.id|string %}
+      <!-- 댓글 수정 모드 -->
+      <form method="POST" action="{{ url_for('edit_comment', comment_id=comment.id) }}">
+        <div class="d-flex align-items-center gap-2">
+          <input name="new_content" class="form-control" value="{{ comment.content }}" required>
+          <div class="d-flex gap-2" style="min-width: 150px;">
+            <button type="submit" class="btn btn-warning w-100">저장</button>
+            <a href="{{ url_for('view_review', review_id=review.id) }}" class="btn btn-secondary w-100">취소</a>
+          </div>
+        </div>
+      </form>
+    {% else %}
+      <!-- 일반 댓글 -->
+      <div class="d-flex justify-content-between">
+        <div>
+          <strong>{{ comment.user.username }}</strong>: {{ comment.content }}<br>
+          <small>좋아요: {{ comment.likes }} | 싫어요: {{ comment.dislikes }}</small><br>
+          <a href="{{ url_for('like_comment', comment_id=comment.id) }}" class="btn btn-sm btn-outline-success">좋아요</a>
+          <a href="{{ url_for('dislike_comment', comment_id=comment.id) }}" class="btn btn-sm btn-outline-danger">싫어요</a>
+        </div>
+        {% if session.get('user_id') == comment.user_id %}
+        <div class="d-flex flex-column justify-content-center gap-2 ms-3">
+          <a href="{{ url_for('view_review', review_id=review.id, edit=comment.id) }}"
+             class="btn btn-sm btn-warning w-100">수정</a>
+          <form method="POST" action="{{ url_for('delete_comment', comment_id=comment.id) }}"
+                onsubmit="return confirm('댓글을 삭제할까요?');">
+            <button type="submit" class="btn btn-sm btn-danger w-100">삭제</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}
+<!-- 댓글 작성 -->
+{% if session.get('user_id') %}
+  <form method="POST" action="{{ url_for('create_comment', review_id=review.id) }}">
+    <div class="input-group mt-3">
+      <textarea name="content" class="form-control" rows="1" placeholder="댓글을 입력하세요" required></textarea>
+      <button type="submit" class="btn btn-primary">댓글 작성</button>
+    </div>
+  </form>
+{% else %}
+  <p class="text-muted text-end mt-3">댓글을 작성하려면 <a href="{{ url_for('login') }}">로그인</a>하세요.</p>
+{% endif %}
+<!-- 목록 버튼 -->
+<div class="text-end mt-3">
+  <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">목록</a>
+</div>
+{% endblock %}

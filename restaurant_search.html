@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>식당 검색</h2>
+<form method="POST" class="mb-4 d-flex gap-2">
+  <input type="text" name="keyword" placeholder="검색할 식당명 또는 키워드" class="form-control" required>
+  <button type="submit" class="btn btn-info text-white">검색</button>
+</form>
+{% if results is defined %}
+  {% if results %}
+    <h5>"{{ keyword }}"에 대한 리뷰 검색 결과</h5>
+    <ul class="list-group mb-4">
+      {% for item in results %}
+        <li class="list-group-item">
+          <p class="mb-1">
+            <a href="{{ url_for('view_review', review_id=item.id) }}">{{ item.title }}</a>
+          </p>
+          <small>식당: {{ item.restaurant.name }} / 작성자: {{ item.user.username }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">검색 결과가 없습니다.</p>
+  {% endif %}
+<div class="d-flex justify-content-end">
+  <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg px-4">목록</a>
+</div>
+{% endif %}
+{% endblock %}

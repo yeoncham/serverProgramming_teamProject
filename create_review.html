@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>리뷰 작성</h2>
+<form method="POST" enctype="multipart/form-data">
+  <!-- 리뷰 제목 -->
+  <div class="mb-3">
+    <label for="title" class="form-label">제목</label>
+    <input type="text" id="title" name="title" class="form-control" placeholder="리뷰 제목을 입력하세요" required>
+  </div>
+  <!-- 식당 검색 -->
+  <div class="mb-3">
+    <label for="search" class="form-label">식당 검색</label>
+    <input type="text" id="search" class="form-control" placeholder="식당명 입력">
+    <div id="search-results" class="list-group mt-1"></div>
+  </div>
+  <!-- 자동 입력될 식당 이름 -->
+  <div class="mb-3">
+    <label for="restaurant_name" class="form-label">식당 이름</label>
+    <input type="text" class="form-control" name="restaurant_name" id="restaurant_name" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">별점 (1~5)</label>
+    <input type="number" name="rating" min="1" max="5" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">후기 내용</label>
+    <textarea name="content" class="form-control" rows="4" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">이미지 업로드</label>
+    <input type="file" name="image" class="form-control">
+  </div>
+  <div class="text-end mt-3">
+    <button type="submit" class="btn btn-primary">작성 완료</button>
+  </div>
+</form>
+<!-- 네이버 검색 결과 표시 스크립트 -->
+<script>
+document.getElementById('search').addEventListener('input', function () {
+  const keyword = this.value;
+  const resultsDiv = document.getElementById('search-results');
+  resultsDiv.innerHTML = '';
+  if (keyword.length > 1) {
+    fetch(`/api/naver_search?query=${encodeURIComponent(keyword)}`)
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'list-group-item list-group-item-action';
+          div.innerHTML = `<strong>${item.title}</strong><br><small>${item.address}</small>`;
+          div.addEventListener('click', () => {
+            document.getElementById('restaurant_name').value = item.title.replace(/<[^>]*>?/g, '');
+            resultsDiv.innerHTML = '';
+          });
+          resultsDiv.appendChild(div);
+        });
+      });
+  }
+});
+</script>
+{% endblock %}

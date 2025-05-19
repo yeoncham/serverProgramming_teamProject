@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2 class="mb-3">"{{ restaurant.name }}"에 대한 리뷰</h2>
+{% if reviews %}
+  <p class="text-muted">{{ reviews|length }}개의 리뷰가 등록되어 있습니다.</p>
+  <table class="table table-striped text-center align-middle">
+    <thead>
+      <tr>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>별점</th>
+        <th>작성일</th>
+        <th>조회수</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in reviews %}
+      <tr>
+        <td>
+          <a href="{{ url_for('view_review', review_id=review.id) }}"
+             style="max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            {{ review.title }}
+          </a>
+        </td>
+        <td>{{ review.user.username }}</td>
+        <td>{% for i in range(review.rating) %}⭐{% endfor %} ({{ review.rating }})</td>
+        <td>{{ review.created_at.strftime('%Y-%m-%d') }}</td>
+        <td>{{ review.views }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-muted">아직 등록된 리뷰가 없습니다.</p>
+{% endif %}
+<div class="text-end mt-3">
+  <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">목록</a>
+</div>
+{% endblock %}
